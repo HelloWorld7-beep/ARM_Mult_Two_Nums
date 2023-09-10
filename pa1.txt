@@ -1,0 +1,30 @@
+.section .data
+
+#Prints out instructions for users
+input_x_prompt  :   .asciz  "Please enter x: "
+input_y_prompt  :   .asciz  "Please enter y: "
+#Used for reading integers
+input_spec  :   .asciz  "%d"
+#Prints out result, with x*y =
+result      :   .asciz  "x*y = %d\n"
+
+#Declaring the start of the code section
+.section .text
+
+#Defining the main function, entry point for program. Main is global symbol, can be accessed from other parts of program
+.global main
+
+main:
+
+#Two integers, so assume needs to work with neg numbers as well
+
+
+
+
+#Branch to this label on program completion
+exit:
+    mov x0, 0
+    mov x8, 93
+    svc 0
+    ret
+
