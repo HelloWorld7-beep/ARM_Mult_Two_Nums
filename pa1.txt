@@ -1,9 +1,10 @@
+#Data section for declaring constants/variables
 .section .data
 
-#Prints out instructions for users
+#Format specifiers for printf() calls
 input_x_prompt  :   .asciz  "Please enter x: "
 input_y_prompt  :   .asciz  "Please enter y: "
-#Used for reading integers
+#Used for reading integers, defining null terminated ASCII string in program's data section
 input_spec  :   .asciz  "%d"
 #Prints out result, with x*y =
 result      :   .asciz  "x*y = %d\n"
@@ -16,13 +17,76 @@ result      :   .asciz  "x*y = %d\n"
 
 main:
 
-#Two integers, so assume needs to work with neg numbers as well
+#%%%%%%%%%%%Two integers, so assume code needs to work with neg numbers as well. TEST THAT
+
+
+
+#Subtracts 8 bytes from current value of stack pointer in order to reserve space for integer variable x. Don't need to repeat
+# for y because the space allocated on the stack can be "rewritten" when it's time to use it for y
+sub sp, sp, 8
+
+#******************************************Get value of x from user and print it********************************************
+
+#Load the user input for x memory address into register x0
+ldr x0, = input_x_prompt
+#bl = performing a branch jump to the printf funtion, printf is print function call in C
+bl printf
+
+#Load instruction that loads memory address into x0, replace previous value?
+ldr x0, = input_spec
+#Copy the value of the stack pointer, sp, into the register x1. Done to preserve current value of stack pointer
+mov x1, sp
+#Again, perform branch jump to scanf function in C
+bl scanf
+#Loading an 8 byte value from stack pointer xp and storing in register x19. Value loaded is user input for variable x
+ldr x19, [sp]
+
+#******************************************Get value of y from user and print it********************************************
+
+#Load memory address into register x0, input y prompt
+ldr x0, = input_y_prompt
+#bl = performing a branch jump to the printf funtion, printf is print function call in C
+bl printf
+
+#Load instruction that loads memory address into x0, replace previous value?
+ldr x0, = input_spec
+#Copy the value of the stack pointer, sp, into the register x1. Done to preserve current value of stack pointer
+mov x1, sp
+#Again, perform branch jump to scanf function in C
+bl scanf
+#Loading 8 byte y value from stack pointer xp and storing in a different register from x, register x20
+ldr x20, [sp]
+
+#Need to create a loop to add x value y times.
+
+#if (y<0)
+#    {
+#            x=0-x;
+#            y=0-y;
+#    }
+#
+
+#Trying to add "0" to the y value with a special register for the sake of the branch comparison
+addi x0, x0, XZR
+#Branch if result is less than 0, jumps to label LESS_THAN_ZERO
+b.lt LESS_THAN_ZERO
+#Code to execute if b is not less than 0
+#End the b is not less than zero branch code
+b.end
+
+
 
 
 
 
 #Branch to this label on program completion
 exit:
+    mov x0, 0
+    mov x8, 93
+    svc 0
+    ret
+
+
     mov x0, 0
     mov x8, 93
     svc 0
