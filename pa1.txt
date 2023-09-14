@@ -36,7 +36,7 @@ bl printf
 ldr x0, = input_spec
 #Copy the value of the stack pointer, sp, into the register x1. Done to preserve current value of stack pointer
 mov x1, sp
-#Again, perform branch jump to scanf function in C
+#Perform branch jump to scanf function in C
 bl scanf
 #Loading an 8 byte value from stack pointer xp and storing in register x19. Value loaded is user input for variable x
 ldr x19, [sp]
@@ -54,29 +54,52 @@ ldr x0, = input_spec
 mov x1, sp
 #Again, perform branch jump to scanf function in C
 bl scanf
-#Loading 8 byte y value from stack pointer xp and storing in a different register from x, register x20
+#Loading 8 byte y value from stack pointer sp register and storing in a different register from x, register x20
 ldr x20, [sp]
 
-#Need to create a loop to add x value y times.
+#*************************************************If-Else Branch****************************************************************
 
-#if (y<0)
-#    {
-#            x=0-x;
-#            y=0-y;
-#    }
-#
-
-#Trying to add "0" to the y value with a special register for the sake of the branch comparison
-addi x0, x0, XZR
-#Branch if result is less than 0, jumps to label LESS_THAN_ZERO
+#Subtract to determine if y is less than zero, get a positive, zero, or neg num. y + 0, > 0 OR < 0 OR = 0
+add x1, x20, 0
+#Branch if result is less than 0, aka negative number, jumps to label LESS_THAN_ZERO
 b.lt LESS_THAN_ZERO
-#Code to execute if b is not less than 0
-#End the b is not less than zero branch code
-b.end
+#Code to execute if b is not less than 0, jumps to the end of the if else code
+b LEAVE_BRANCH
+#Less than zero branch
+LESS_THAN_ZERO: 
+    #x = 0 - x
+    sub x19, XZR, x19
+    #y = 0 - y
+    sub x20, XZR, x20
+#End of if else statement
+LEAVE_BRANCH:
+
+#Set register x5, counter, to 0
+mov x5, 0
+#Set register x2, final number, to 0
+mov x2, 0
+
+#***********************************For Loop "Multiplication"*****************************************************************
+
+#For loop:
+LOOP:
+
+    #Compare the counter, x5, to y
+    cmp x5, x20
+    #When counter is greater than y, exit program
+    b.gt exit
+
+    #Add the x-value to the final number
+    add x2, x2, x19
+
+    #Go back to the loop start
+    b LOOP
+
+#**************************************************Print out result*************************************************************
 
 
 
-
+#******************************************************Exit************************************************************
 
 
 #Branch to this label on program completion
@@ -86,9 +109,4 @@ exit:
     svc 0
     ret
 
-
-    mov x0, 0
-    mov x8, 93
-    svc 0
-    ret
 
