@@ -1,24 +1,3 @@
-#Data section for declaring constants/variables
-.section .data
-
-#Format specifiers for printf() calls
-input_x_prompt  :   .asciz  "Please enter x: "
-input_y_prompt  :   .asciz  "Please enter y: "
-#Used for reading integers, defining null terminated ASCII string in program's data section
-input_spec  :   .asciz  "%d"
-#Prints out result, with x*y =
-result      :   .asciz  "x*y = %d\n"
-
-#Declaring the start of the code section
-.section .text
-
-#Defining the main function, entry point for program. Main is global symbol, can be accessed from other parts of program
-.global main
-
-main:
-
-#%%%%%%%%%%%Two integers, so assume code needs to work with neg numbers as well. TEST THAT
-
 
 
 #Subtracts 8 bytes from current value of stack pointer in order to reserve space for integer variable x. Don't need to repeat
@@ -59,18 +38,22 @@ ldr x20, [sp]
 
 #*************************************************If-Else Branch****************************************************************
 
-#Subtract to determine if y is less than zero, get a positive, zero, or neg num. y + 0, > 0 OR < 0 OR = 0
-add x1, x20, 0
+#Add to determine if y is less than zero, get a positive, zero, or neg num. y + 0, > 0 OR < 0 OR = 0
+add x1, x20, XZR
+
 #Branch if result is less than 0, aka negative number, jumps to label LESS_THAN_ZERO
 b.lt LESS_THAN_ZERO
+
 #Code to execute if b is not less than 0, jumps to the end of the if else code
 b LEAVE_BRANCH
+
 #Less than zero branch
 LESS_THAN_ZERO: 
     #x = 0 - x
     sub x19, XZR, x19
     #y = 0 - y
     sub x20, XZR, x20
+
 #End of if else statement
 LEAVE_BRANCH:
 
@@ -86,16 +69,17 @@ LOOP:
 
     #Compare the counter, x5, to y
     cmp x5, x20
-    #When counter is greater than y, exit program
-    b.gt exit
+    #When counter is equal to y, exit program
+    b.eq exit
 
     #Add the x-value to the final number
     add x2, x2, x19
 
+    #Increment x5, aka counter
+    add x5, x5, 1
+
     #Go back to the loop start
     b LOOP
-
-#**************************************************Print out result*************************************************************
 
 
 
@@ -104,6 +88,15 @@ LOOP:
 
 #Branch to this label on program completion
 exit:
+    #Print out result
+    #Load the address of the format string. Needs to be x0, not x1? Don't know why
+    ldr x0, = result
+    #Load the result into x1
+    mov x1, x2
+    #Print the result
+    bl printf
+
+    #Exit
     mov x0, 0
     mov x8, 93
     svc 0
